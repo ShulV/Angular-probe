@@ -1,0 +1,19 @@
+.header {
+  width: 90%;
+  margin: 0 auto;
+  background-color: orange;
+  text-align: center;
+  font-size: 30px;
+}
+
+.item-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.item {
+  background-color: lightgreen;
+  height: 100px;
+  width: 200px;
+  border: 1px solid lightblue;
+}

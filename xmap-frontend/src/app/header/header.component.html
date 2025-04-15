@@ -1,0 +1,30 @@
+<div class="header">
+xmap header)
+  <!--  event binding -->
+  <button (click)="changeText()" style="color: pink;">клац</button>
+  <!--  interpolation -->
+  <div>
+    {{text}}
+  </div>
+  <!-- attribute binding -->
+  <div>
+    <input [attr.disabled]="disabled" type="text" value="сразу disabled и не меняется"/>
+  </div>
+  <!--  property binding-->
+  <div>
+    <button (click)="changeDisabled()">change disabled</button>
+    <input type="text" [disabled]="disabled">
+  </div>
+  <div>
+    <button (click)="changeCheckbox()">change check</button>
+    <input type="checkbox" [checked]="checked">
+  </div>
+  <!-- условия -->
+  <div *ngIf="disabled">
+    <p>условный текст...</p>
+  </div>
+  <!-- циклы -->
+  <div class="item-container">
+    <div *ngFor="let item of items" class="item">{{item.name}}</div>
+  </div>
+</div>
