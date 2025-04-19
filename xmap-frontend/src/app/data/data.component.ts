@@ -4,16 +4,16 @@ import {HttpClient} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
 
 @Component({
-  selector: 'app-header',
+  selector: 'app-data',
   imports: [
     NgIf,
     NgForOf,
     FormsModule
   ],
-  templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  templateUrl: './data.component.html',
+  styleUrl: './daet.component.css'
 })
-export class HeaderComponent {
+export class DataComponent {
   text = "<3";
   disabled = false;
   checked = true;
