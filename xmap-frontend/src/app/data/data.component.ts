@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-data',
@@ -11,7 +12,7 @@ import {FormsModule} from '@angular/forms';
     FormsModule
   ],
   templateUrl: './data.component.html',
-  styleUrl: './daet.component.css'
+  styleUrl: './data.component.css'
 })
 export class DataComponent {
   text = "<3";
@@ -24,8 +25,13 @@ export class DataComponent {
     {name:"world square"},
     {name: "Скейтпарк Леры"}];
   inputValue = "";
+  email = "";
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private activatedRoute: ActivatedRoute) {
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.email = params['email'];
+      console.log("activated route consumes", params);
+    })
   }
 
   public changeText() {
