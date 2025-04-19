@@ -27,4 +27,12 @@ xmap header)
   <div class="item-container">
     <div *ngFor="let item of items" class="item">{{item.name}}</div>
   </div>
+  <!-- GET request-->
+  <div>
+    <button (click)="doGetRequest()">do get</button>
+  </div>
+  <!-- POST request-->
+  <div>
+    <button (click)="doPostRequest()">do post</button>
+  </div>
 </div>
