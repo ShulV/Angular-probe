@@ -35,4 +35,9 @@ xmap header)
   <div>
     <button (click)="doPostRequest()">do post</button>
   </div>
+  <!-- 2 стороннее связывание, ngModel -->
+  <div>
+    <input [(ngModel)]="inputValue">
+    <p>v = {{inputValue}}</p>
+  </div>
 </div>

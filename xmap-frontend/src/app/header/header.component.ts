@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import {NgForOf, NgIf} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-header',
   imports: [
     NgIf,
-    NgForOf
+    NgForOf,
+    FormsModule
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
@@ -21,6 +23,7 @@ export class HeaderComponent {
     {name:"rampstroy"},
     {name:"world square"},
     {name: "Скейтпарк Леры"}];
+  inputValue = "";
 
   constructor(private http: HttpClient) {
   }
