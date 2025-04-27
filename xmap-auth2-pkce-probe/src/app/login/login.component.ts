@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import * as CryptoES from 'crypto-es';
 import {environment} from "../../environments/environment";
+import {ActivatedRoute} from "@angular/router";
+import {HttpClient, HttpParams} from "@angular/common/http";
 
 @Component({
   selector: 'app-login',
@@ -10,10 +12,78 @@ import {environment} from "../../environments/environment";
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+  private pkceStates = [
+    "getting auth code",
+    "code exists, access token getting",
+    "access token exists",
+  ];
 
+  public pkceState;
 
-  constructor() {
-    this.startPKCE();
+  constructor(private activatedRoute: ActivatedRoute,
+              private http: HttpClient) {
+    this.pkceState = this.pkceStates[0];
+  }
+
+  ngOnInit() {
+    this.activatedRoute.queryParams.subscribe(params => {
+      if (params['code']) {
+        this.pkceState = this.pkceStates[1];
+
+        const code = params['code'];
+        const state = params['state'];
+
+        //удалили параметры из урла
+        window.history.pushState({}, "", document.location.href.split("?")[0]);
+
+        console.log(`code: ${code}`);
+        console.log(`state: ${state}`);
+
+        this.getTokens(code, state);
+        return;
+      }
+
+      this.startPKCE();
+    });
+  }
+
+  private getTokens(authCode: string, state: string) {
+    console.log('tokens getting');
+    if (state !== localStorage.getItem("state")) {
+      console.error("state mismatch");
+      return;
+    }
+
+    const codeVerifier = localStorage.getItem('codeVerifier') as string;
+    localStorage.removeItem('codeVerifier');
+    console.log(`codeVerifier ${codeVerifier}`);
+
+    const body = new HttpParams()
+      .append('grant_type', 'authorization_code')
+      .append('code', authCode)
+      .append('code_verifier', codeVerifier)
+      .append('client_id', environment.kcClientId)
+      .append('redirect_uri', environment.frontendLoginUrl);
+
+    const options = {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    }
+
+    console.log(`get tokens: body=${body}, options=${options}`);
+
+    this.http.post(environment.kcClientUrl + '/token', body, options).subscribe({
+      next: (res: any) => {
+        localStorage.setItem("access_token", res.access_token);
+        localStorage.setItem("id_token", res.id_token);
+        localStorage.setItem("refresh_token", res.refresh_token);
+        this.pkceState = this.pkceStates[2];
+      },
+      error: (err) => {
+        console.log('tokens getting failed', err);
+      }
+    });
   }
 
   private startPKCE() {
@@ -44,7 +114,7 @@ export class LoginComponent {
       "scope=openid",
       "code_challenge=" + codeChallenge,
       "code_challenge_method=S256",
-      "redirect_uri=" + encodeURIComponent(environment.frontendRedirectUrl),
+      "redirect_uri=" + encodeURIComponent(environment.frontendLoginUrl),
     ];
     const url = environment.kcClientUrl + '/auth' + '?' + params.join('&');
     console.log(`url = ${url}`);
