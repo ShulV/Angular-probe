@@ -3,8 +3,8 @@
 <button type="button" (click)="getSpots()">get spots</button>
 <div>
   <h2>Споты:</h2>
-  <p *ngIf="spots.length == 0">спотов нет</p>
-  <div *ngFor="let spot of spots; index as i;">
+  <p *ngIf="spots$ == null || spots$.length == 0">спотов нет</p>
+  <div *ngFor="let spot of spots$; index as i;">
     {{i + 1}}) {{spot.name}}
   </div>
 </div>

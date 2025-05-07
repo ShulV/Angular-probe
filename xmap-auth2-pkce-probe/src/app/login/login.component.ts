@@ -130,6 +130,4 @@ export class LoginComponent {
     }
     return result;
   }
-
-
 }
