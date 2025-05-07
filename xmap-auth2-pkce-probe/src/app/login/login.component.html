@@ -1,4 +1,6 @@
-<img class="loader" src="/assets/img/reload-cat.gif" alt="loading...">
+<img *ngIf="name == null" class="loader" src="/assets/img/reload-cat.gif" alt="loading...">
+<div *ngIf="name">Привет, {{name}}</div>
 <div>
   PKCE state: {{pkceState}}
 </div>
+<a *ngIf="idToken" (click)="logout()" href="">Выйти</a>

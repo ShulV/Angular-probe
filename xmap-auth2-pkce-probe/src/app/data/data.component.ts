@@ -24,9 +24,11 @@ export class DataComponent {
   constructor(private http: HttpClient, private router: Router) {}
 
   public async getSpots() {
+    console.log('getSpots');
     try {
       const accessToken = await this.getAccessToken();
       if (!accessToken) {
+        console.log('getSpots: Access token not found, go to login');
         await this.router.navigate(['/login']);
         return;
       }
@@ -50,23 +52,30 @@ export class DataComponent {
   private async getAccessToken(): Promise<string | undefined> {
     let access_token = localStorage.getItem("access_token");
     if (access_token) {
+      console.log('getAccessToken: access_token in local storage', access_token);
       return access_token;
     }
 
     let refresh_token = localStorage.getItem("refresh_token");
     if (refresh_token) {
+      console.log('getAccessToken: refresh_token in local storage, updateTokens', refresh_token);
       const updateResult = await this.updateTokens(refresh_token);
-      if (updateResult && updateResult.access_token) {
+      if (updateResult && updateResult.access_token && updateResult.refresh_token && updateResult.id_token) {
+        console.log('getAccessToken: successful updateTokens: ',
+          updateResult.access_token, updateResult.refresh_token, updateResult.id_token);
         localStorage.setItem("access_token", updateResult.access_token);
         localStorage.setItem("refresh_token", updateResult.refresh_token);
+        localStorage.setItem("id_token", updateResult.id_token);
         return updateResult.access_token;
       }
+      console.log('getAccessToken: error updateTokens', updateResult);
     }
 
     return undefined;
   }
 
   private async updateTokens(refresh_token: string): Promise<AccessTokenResponse | undefined> {
+    console.log('updateTokens', refresh_token);
     const body = new HttpParams()
       .append('grant_type', 'refresh_token')
       .append('client_id', environment.kcClientId)
@@ -76,7 +85,7 @@ export class DataComponent {
       const result = await firstValueFrom(this.http.post(environment.kcClientUrl + '/token', body));
       return result as AccessTokenResponse;
     } catch (error) {
-      console.error("Error refreshing tokens:", error);
+      console.error("Error updateTokens:", error);
       return undefined;
     }
   }

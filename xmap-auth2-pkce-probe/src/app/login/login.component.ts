@@ -3,26 +3,36 @@ import * as CryptoES from 'crypto-es';
 import {environment} from "../../environments/environment";
 import {ActivatedRoute} from "@angular/router";
 import {HttpClient, HttpParams} from "@angular/common/http";
+import { jwtDecode } from "jwt-decode";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [],
+  imports: [
+    NgIf
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
   private pkceStates = [
-    "getting auth code",
-    "code exists, access token getting",
-    "access token exists",
+    "(1) getting auth code",
+    "(2) code exists, access token getting",
+    "(3) access token exists",
   ];
+  protected idToken: string | undefined;
+  private jwt: any | null = null;
 
   public pkceState;
 
   constructor(private activatedRoute: ActivatedRoute,
               private http: HttpClient) {
     this.pkceState = this.pkceStates[0];
+  }
+
+  get name(): string {
+    return this.jwt?.given_name;
   }
 
   ngOnInit() {
@@ -39,12 +49,29 @@ export class LoginComponent {
         console.log(`code: ${code}`);
         console.log(`state: ${state}`);
 
-        this.getTokens(code, state);
+        setTimeout(() => {this.getTokens(code, state)}, 3000);
         return;
       }
 
       this.startPKCE();
     });
+  }
+
+  public logout(): void {
+    const params = [
+      "post_logout_redirect_uri=" + environment.frontendLoginUrl,
+      "id_token_hint=" + this.idToken,
+      "client_id=" + environment.kcClientId
+    ];
+
+    let logoutUrl = environment.kcClientUrl + "/logout" + "?" + params.join("&");
+
+    window.open(logoutUrl, "_self");
+    this.jwt = null;
+    this.idToken = undefined;
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("id_token");
+    localStorage.removeItem("refresh_token");
   }
 
   private getTokens(authCode: string, state: string) {
@@ -77,6 +104,9 @@ export class LoginComponent {
       next: (res: any) => {
         localStorage.setItem("access_token", res.access_token);
         localStorage.setItem("id_token", res.id_token);
+        this.jwt = jwtDecode(res.id_token);
+        this.idToken = res.id_token;
+        console.log("decoded jwt id token", this.jwt);
         localStorage.setItem("refresh_token", res.refresh_token);
         this.pkceState = this.pkceStates[2];
       },
@@ -118,7 +148,7 @@ export class LoginComponent {
     ];
     const url = environment.kcClientUrl + '/auth' + '?' + params.join('&');
     console.log(`url = ${url}`);
-    window.open(url, '_self');
+    setTimeout(() => {window.open(url, '_self')}, 3000);
   }
 
   // Функция для генерации случайной строки заданной длины
